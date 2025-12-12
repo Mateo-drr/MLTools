@@ -5,110 +5,77 @@ Created on Fri Jul 26 17:09:10 2024
 @author: Mateo-drr
 """
 
-from dataset import CustomDataset
-from torch.utils.data import DataLoader
+import time
 from model import SampleNet
-from tqdm import tqdm
-import torch.nn as nn
-import torch.optim as optim
-from types import SimpleNamespace
 import torch
 import wandb
-import copy
-from pathlib import Path
+
+from config import config
+from cstm_ds import make_train_dl
+import utils as utils
+import loops
 
 #PARAMS
-torch.set_num_threads(8)
-torch.set_num_interop_threads(8)
-torch.backends.cudnn.benchmark = True
+if config.threads is not None:
+    torch.set_num_threads(config.threads)
+    torch.set_num_interop_threads(config.threads)
+torch.backends.cudnn.benchmark = config.cudnn_bench
 
-configD = {'lr':1e-2,
-           'num_epochs': 12,
-           'batch':64,
-           'wb':False,
-           'project_name': 'Sample',
-           'basePath': Path(__file__).resolve().parent, #base dir
-           'modelDir': Path(__file__).resolve().parent / 'weights',
-           }
-config = SimpleNamespace(**configD)
-
-data=[]
-vdat=[]
-
-train_ds = CustomDataset(data)
-valid_ds = CustomDataset(vdat)
-train_dl = DataLoader(train_ds, batch_size=config.batch, pin_memory=True)
-valid_dl = DataLoader(valid_ds, batch_size=config.batch, pin_memory=True)
-
+train_dl = make_train_dl(config, "train")
+valid_dl = make_train_dl(config, "valid")
+test_dl = make_train_dl(config, "test")
 
 # Instantiate the model
 model = SampleNet()
+model.to(config.device)
+
 # Define a loss function and optimizer
-criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(), lr=0.01)
+criterion = config.criterion()
+optimizer = config.optimizer(model.parameters(), lr=config.lr)
+if config.scheduler is not None:
+    scheduler = config.scheduler(optimizer, T_max=config.num_epochs)
+scaler = torch.amp.GradScaler(device=config.device)
 
 #init weights & biases
 if config.wb:
     wandb.init(project=config.project_name,
-               config=configD)
+               config=config.__dict__.copy())
 
+utils.count_params(model)
 
-bestTloss=1e9
-bestVloss=1e9
-for epoch in range(config.num_epochs):    
-    
-    model.train()
-    trainLoss=0
-    for sample in tqdm(train_dl, desc=f"Epoch {epoch+1}/{config.num_epochs}"):
-        
-        lbl,inp = sample
-        out = model(sample)
-        
-        optimizer.zero_grad()    
-        loss = criterion(out, lbl)  # Compute loss
-        loss.backward()             # Backward pass
-        optimizer.step()        
+timings = {"start": time.time()}
+wb_metrics = {"train": {}, "valid": {}}
+current_best = {}
 
-        trainLoss += loss.item()
-        
-        if config.wb:
-            wandb.log({"TLoss": loss,
-                       'Learning Rate': optimizer.param_groups[0]['lr']})
-            
-    avg_loss = trainLoss / len(train_dl)    
-    print(f'Epoch {epoch+1}, Loss: {loss.item()}')
+for epoch in range(config.num_epochs):
 
-    model.eval()
-    validLoss=0
-    with torch.no_grad():
-        for sample in tqdm(valid_dl, desc=f"Epoch {epoch+1}/{config.num_epochs}"):
-            
-            lbl,inp = sample
-            out = model(sample)
-        
-            loss = criterion(out, lbl)  # Compute loss
-            
-            validLoss += loss.item()
-            
-        avg_lossV = validLoss / len(valid_dl)    
-        print(f'Epoch {epoch+1}, Loss: {avg_lossV}') 
+    timings["epoch_start"] = time.time()
 
+    loops.train_loop(
+        model,
+        train_dl,
+        criterion,
+        optimizer,
+        scaler,
+        wb_metrics,
+        config,
+        epoch,
+        scheduler=None
+    )
 
-    if config.wb:
-        wandb.log({"Validation Loss": avg_lossV, "Training Loss": avg_loss})
-    
-    if avg_loss <= bestTloss and avg_lossV <= bestVloss:
-        bestModel = copy.deepcopy(model)
-        bestTloss = avg_loss
-        bestVloss = avg_lossV
-        torch.save({
-        'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
-        'epoch': epoch,
-        'losstv': (avg_loss,avg_lossV),
-        'config':config,
-        }, config.modelDir / 'best.pth')
-    
+    loops.eval_loop(
+        model,
+        valid_dl,
+        criterion,
+        eval_name="valid",
+        wb_metrics=wb_metrics,
+        config=config,
+    )
+
+    current_best = utils.finish_epoch(
+        epoch, wb_metrics, timings, current_best, optimizer.param_groups[0]["lr"], model, config
+    )
+
 if config.wb:
     wandb.finish()    
 

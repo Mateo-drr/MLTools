@@ -10,9 +10,9 @@ import torch.nn as nn
 
 class SampleNet(nn.Module):
     def __init__(self):
-        super(SampleNet, self).__init__()
-        self.fc1 = nn.Linear(10, 5)  
-        self.fc2 = nn.Linear(5, 2)  
+        super().__init__()
+        self.fc1 = nn.Linear(16, 5)
+        self.fc2 = nn.Linear(5, 16)
     
     def forward(self, x):
         x = torch.relu(self.fc1(x))
