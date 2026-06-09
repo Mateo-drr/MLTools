@@ -38,8 +38,10 @@ scaler = torch.amp.GradScaler(device=config.device)
 
 #init weights & biases
 if config.wb:
-    wandb.init(project=config.project_name,
-               config=config.__dict__.copy())
+    wandb.init(
+        project=config.project_name,
+        config=config.__dict__.copy()
+    )
 
 utils.count_params(model)
 

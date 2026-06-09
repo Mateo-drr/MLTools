@@ -10,7 +10,6 @@ class PositionEmbeddingSine(nn.Module):
     """
     def __init__(
             self,
-            num_pos_feats: int,
             temperature=10000,
             normalize=True,
             scale=None
@@ -19,7 +18,6 @@ class PositionEmbeddingSine(nn.Module):
         num_pos_feats (int): Number of channels // 2
         """
         super().__init__()
-        self.num_pos_feats = num_pos_feats
         self.temperature = temperature
         self.normalize = normalize
         if scale is not None and normalize is False:
@@ -29,7 +27,12 @@ class PositionEmbeddingSine(nn.Module):
         self.scale = scale
 
     def forward(self, x):
-        b, _, h, w = x.shape
+
+        b, c, h, w = x.shape
+        num_pos_feats = (c + 1) // 2  # round up so 2*num_pos_feats >= c
+
+        dim_t = torch.arange(num_pos_feats, dtype=torch.float32, device=x.device)
+
         # Create coordinate grids
         y_embed = torch.arange(
             1, h + 1, dtype=torch.float32, device=x.device
@@ -41,10 +44,8 @@ class PositionEmbeddingSine(nn.Module):
             eps = 1e-6
             y_embed = y_embed / (y_embed[:, -1:, :] + eps) * self.scale
             x_embed = x_embed / (x_embed[:, :, -1:] + eps) * self.scale
-        dim_t = torch.arange(
-            self.num_pos_feats, dtype=torch.float32, device=x.device
-        )
-        dim_t = self.temperature ** (2 * (dim_t // 2) / self.num_pos_feats)
+
+        dim_t = self.temperature ** (2 * (dim_t // 2) / num_pos_feats)
         pos_x = x_embed[:, :, :, None] / dim_t
         pos_y = y_embed[:, :, :, None] / dim_t
         pos_x = torch.stack(
@@ -55,5 +56,6 @@ class PositionEmbeddingSine(nn.Module):
             (pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()),
             dim=4
         ).flatten(3)
-        pos = torch.cat((pos_y, pos_x), dim=3).permute(0, 3, 1, 2)
-        return pos
+
+        pos = torch.cat((pos_y, pos_x), dim=3).permute(0, 3, 1, 2)  # [B, 2*num_pos_feats, H, W]
+        return pos[:, :c, :, :]  # slice back to exactly c channels
