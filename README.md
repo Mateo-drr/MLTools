@@ -173,15 +173,13 @@ defaults or import `config` and override attributes before training.
 ## Training
 
 ```bash
-python mltools/training.py
+python -m mltools.training
 ```
 
-Run it from the repository root, **not** as `python -m mltools.training`: the script
-uses same-directory imports (`from model import ...`), which only resolve when
-`mltools/` is on `sys.path`. It also has no `if __name__ == "__main__"` guard, so the
-whole run happens at import — set `config.num_workers = 0` (in `mltools/config.py`)
-because multiprocessing dataloader workers re-import the script, which crashes on
-Python 3.14+ (`forkserver` is the default start method).
+Run it from the repository root (or anywhere, as long as the `mltools` package is
+importable). `python mltools/training.py` works as well. The training body lives in
+`main()` behind an `if __name__ == "__main__"` guard, so importing the module has no
+side effects.
 
 The flow is `training.py` → `make_dl` → `SampleNet` → `loops.train_loop` /
 `loops.eval_loop` → `utils.finish_epoch`, with `torch.amp.autocast` and
@@ -201,8 +199,8 @@ mypy               # strict mode over mltools/
 ```
 
 CI (`.github/workflows/ci.yml`) runs Python 3.12 on Ubuntu: install, pylint, mypy and
-pytest. Pylint and mypy are currently marked `continue-on-error` — pylint scores 6.5/10
-and strict mypy reports ~150 errors; remove that flag once they are clean.
+pytest. Mypy runs in strict mode over `mltools/` and is clean; pylint scores 7.6/10 and
+is marked `continue-on-error` until the remaining warnings are fixed.
 
 ## Known issues
 
@@ -210,8 +208,7 @@ and strict mypy reports ~150 errors; remove that flag once they are clean.
 - `MoDEConv(..., causal=True)` in `RepMoDE_1d.py` fails: it pads the channel dim instead of the time dim.
 - `PositionEmbeddingSine` requires an even `(channels + 1) // 2`; odd values raise from `torch.stack`.
 - `augmentations_3d.random_local_rotation` expects a 4D `[b, 1, H, W]` chunk and a 2D label; 5D volumes raise `RuntimeError`.
-- `training.py` creates a scheduler but passes `scheduler=None` to `train_loop`, so it never steps.
-- `training.py` has no `__main__` guard and uses same-directory imports, so it can only run as a script from the repo root, and only with `config.num_workers = 0`.
+- `training.py` builds a scheduler but passes `scheduler=None` to `train_loop`, so it never steps.
 - In `RepMoDE_3d.MoDEConv`, `eval()` mode uses only the first task's expert weights for the whole batch.
 
 ## License

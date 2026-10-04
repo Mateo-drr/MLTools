@@ -29,7 +29,8 @@ dev = [
     "pytest",
     "pylint",
     "mypy",
-    "black"
+    "black",
+    "types-tqdm"
 ]
 
 # Project links shown on PyPI
@@ -52,3 +53,11 @@ addopts = "-v"
 python_version = "3.12"
 strict = true
 files = ["mltools"]
+
+[[tool.mypy.overrides]]
+module = ["torch.*"]
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = ["torchvision.*"]
+ignore_missing_imports = true

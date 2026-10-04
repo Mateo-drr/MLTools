@@ -11,17 +11,44 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 import torch
 
+from mltools.config import Config
 
-class CustomDataset(Dataset):
-    def __init__(self, config) -> None:
+
+class CustomDataset(Dataset[dict[str, Any]]):
+    """
+    Dataset that returns samples under the data key
+    """
+
+    def __init__(self, config: Config) -> None:
+        """
+        Build the dataset
+        Args
+            self: Dataset instance
+            config: Config holding the batch and dataloader options
+        """
         super().__init__()
         self.config = config
         self.data = [torch.rand(8, 16)]
 
     def __len__(self) -> int:
+        """
+        Count the samples of the dataset
+        Args
+            self: Dataset instance
+        Returns
+            int: Number of samples
+        """
         return len(self.data)
 
-    def __getitem__(self, idx) -> dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
+        """
+        Get a single sample
+        Args
+            self: Dataset instance
+            idx: Index of the sample
+        Returns
+            dict[str, Any]: Sample with shape [8, 16] under the data key
+        """
         data = self.data[idx]
         data = torch.tensor(data)
         return {
@@ -29,9 +56,19 @@ class CustomDataset(Dataset):
         }
 
 
-def make_dl(config, split: Literal["train", "valid", "test"]):
+def make_dl(
+    config: Config, split: Literal["train", "valid", "test"]
+) -> DataLoader[dict[str, Any]]:
+    """
+    Build the dataloader of a split
+    Args
+        config: Config holding the batch, worker and prefetch options
+        split: Split to build the dataloader for, either train, valid or test
+    Returns
+        DataLoader[dict[str, Any]]: Dataloader over the dataset of the split
+    """
     dataset = CustomDataset(config)
-    dataloader = None
+    dataloader: DataLoader[dict[str, Any]]
     match split:
         case "train":
             dataloader = DataLoader(

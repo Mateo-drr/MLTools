@@ -6,80 +6,82 @@ Created on Fri Jul 26 17:09:10 2024
 """
 
 import time
-from model import SampleNet
+from typing import Any
+
 import torch
 import wandb
 
-from config import config
-from datasets.cstm_ds import make_dl
-import utils as utils
-import loops
+from mltools import loops, utils
+from mltools.config import config
+from mltools.datasets.cstm_ds import make_dl
+from mltools.model import SampleNet
 
-# PARAMS
-if config.threads is not None:
-    torch.set_num_threads(config.threads)
-    torch.set_num_interop_threads(config.threads)
-torch.backends.cudnn.benchmark = config.cudnn_bench
+if __name__ == "__main__":
+    # PARAMS
+    if config.threads is not None:
+        torch.set_num_threads(config.threads)
+        torch.set_num_interop_threads(config.threads)
+    torch.backends.cudnn.benchmark = config.cudnn_bench
 
-train_dl = make_dl(config, "train")
-valid_dl = make_dl(config, "valid")
-test_dl = make_dl(config, "test")
+    train_dl = make_dl(config, "train")
+    valid_dl = make_dl(config, "valid")
+    test_dl = make_dl(config, "test")
 
-# Instantiate the model
-model = SampleNet()
-model.to(config.device)
+    # Instantiate the model
+    model = SampleNet()
+    model.to(config.device)
 
-# Define a loss function and optimizer
-criterion = config.criterion()
-optimizer = config.optimizer(model.parameters(), lr=config.lr)
-if config.scheduler is not None:
-    scheduler = config.scheduler(optimizer, T_max=config.num_epochs)
-scaler = torch.amp.GradScaler(device=config.device)
+    # Define a loss function and optimizer
+    criterion = config.criterion()
+    optimizer = config.optimizer(model.parameters(), lr=config.lr)
+    if config.scheduler is not None:
+        scheduler = config.scheduler(optimizer, T_max=config.num_epochs)
+    scaler = torch.amp.GradScaler(device=config.device)
 
-# init weights & biases
-if config.wb:
-    wandb.init(project=config.project_name, config=config.__dict__.copy())
+    # init weights & biases
+    if config.wb:
+        wandb.init(project=config.project_name, config=config.__dict__.copy())
 
-utils.count_params(model)
+    utils.count_params(model)
 
-timings = {"start": time.time()}
-wb_metrics = {"train": {}, "valid": {}}
-current_best = {}
+    timings: dict[str, float] = {"start": time.time()}
+    wb_metrics: dict[str, dict[str, Any]] = {"train": {}, "valid": {}}
+    current_best: dict[str, Any] = {}
 
-for epoch in range(config.num_epochs):
+    for epoch in range(config.num_epochs):
 
-    timings["epoch_start"] = time.time()
+        timings["epoch_start"] = time.time()
 
-    loops.train_loop(
-        model,
-        train_dl,
-        criterion,
-        optimizer,
-        scaler,
-        wb_metrics,
-        config,
-        epoch,
-        scheduler=None,
-    )
+        loops.train_loop(
+            model,
+            train_dl,
+            criterion,
+            optimizer,
+            scaler,
+            wb_metrics,
+            config,
+            epoch,
+            scheduler=None,
+        )
 
-    loops.eval_loop(
-        model,
-        valid_dl,
-        criterion,
-        eval_name="valid",
-        wb_metrics=wb_metrics,
-        config=config,
-    )
+        loops.eval_loop(
+            model,
+            valid_dl,
+            criterion,
+            eval_name="valid",
+            wb_metrics=wb_metrics,
+            config=config,
+        )
 
-    current_best = utils.finish_epoch(
-        epoch,
-        wb_metrics,
-        timings,
-        current_best,
-        optimizer.param_groups[0]["lr"],
-        model,
-        config,
-    )
+        current_best = utils.finish_epoch(
+            epoch,
+            wb_metrics,
+            timings,
+            current_best,
+            optimizer.param_groups[0]["lr"],
+            model,
+            config,
+        )
 
-if config.wb:
-    wandb.finish()
+    if config.wb:
+        wandb.finish()

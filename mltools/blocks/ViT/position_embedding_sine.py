@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Oct 04 21:15:35 2026
+
+@author: Mateo-drr
+"""
+
 import torch
 from torch import nn
 import math
@@ -9,9 +16,19 @@ class PositionEmbeddingSine(nn.Module):
     Works directly with tensors of shape [B, C, H, W].
     """
 
-    def __init__(self, temperature=10000, normalize=True, scale=None):
+    def __init__(
+        self,
+        temperature: float = 10000,
+        normalize: bool = True,
+        scale: float | None = None,
+    ) -> None:
         """
-        num_pos_feats (int): Number of channels // 2
+        Build a sine positional embedding
+        Args
+            self: Positional embedding instance
+            temperature: Temperature of the sinusoidal embedding
+            normalize: Whether the coordinate grids are normalized to [0, scale]
+            scale: Scale of the coordinates, defaults to 2 * pi, only valid when normalize is True
         """
         super().__init__()
         self.temperature = temperature
@@ -22,8 +39,15 @@ class PositionEmbeddingSine(nn.Module):
             scale = 2 * math.pi
         self.scale = scale
 
-    def forward(self, x):
-
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Build the sine and cosine encoding of the spatial coordinates
+        Args
+            self: Positional embedding instance
+            x: Input tensor with shape [B, C, H, W], used for device and channel count
+        Returns
+            torch.Tensor: Positional embedding with shape [B, C, H, W]
+        """
         b, c, h, w = x.shape
         num_pos_feats = (c + 1) // 2  # round up so 2*num_pos_feats >= c
 
