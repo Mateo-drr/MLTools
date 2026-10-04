@@ -12,54 +12,54 @@ import torch.nn as nn
 from torch.nn import functional as F
 import math
 
-"""
-Sample usage
 
-# encoder
-self.encoder_block1 = MoDEEncoderBlock(self.num_experts, self.num_tasks, self.in_channels, self.in_channels * self.mult_chan)
-self.encoder_block2 = MoDEEncoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan, self.in_channels * self.mult_chan * 2)
-self.encoder_block3 = MoDEEncoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 2, self.in_channels * self.mult_chan * 4)
-self.encoder_block4 = MoDEEncoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 4, self.in_channels * self.mult_chan * 8)
+# Sample usage
+#
+# # encoder
+# self.encoder_block1 = MoDEEncoderBlock(self.num_experts, self.num_tasks, self.in_channels, self.in_channels * self.mult_chan)
+# self.encoder_block2 = MoDEEncoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan, self.in_channels * self.mult_chan * 2)
+# self.encoder_block3 = MoDEEncoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 2, self.in_channels * self.mult_chan * 4)
+# self.encoder_block4 = MoDEEncoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 4, self.in_channels * self.mult_chan * 8)
+#
+# # bottle
+# self.bottle_block = MoDESubNet2Conv(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 8, self.in_channels * self.mult_chan * 16)
+#
+# # decoder
+# self.decoder_block4 = MoDEDecoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 16, self.in_channels * self.mult_chan * 8)
+# self.decoder_block3 = MoDEDecoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 8, self.in_channels * self.mult_chan * 4)
+# self.decoder_block2 = MoDEDecoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 4, self.in_channels * self.mult_chan * 2)
+# self.decoder_block1 = MoDEDecoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 2, self.in_channels * self.mult_chan)
+#
+# # conv out
+# self.conv_out = MoDEConv(self.num_experts, self.num_tasks, self.mult_chan, self.out_channels, kernel_size=5, padding='same', conv_type='final')
+#
+# def forward(self, x, t):
+#     # task embedding
+#     task_emb = self.one_hot_task_embedding(t)
+#
+#     # encoding
+#     #x = self.dropout1(x)
+#     print(x.shape)
+#     x, x_skip1 = self.encoder_block1(x, task_emb)
+#     x, x_skip2 = self.encoder_block2(x, task_emb)
+#     #x = self.dropout(x)
+#     x, x_skip3 = self.encoder_block3(x, task_emb)
+#     x, x_skip4 = self.encoder_block4(x, task_emb)
+#     #print(x.shape,x_skip4.shape)
+#     #x = self.dropout(x)
+#     # bottle
+#     x = self.bottle_block(x, task_emb)
+#
+#     # decoding
+#     x = self.dropout_latent(x)
+#     x = self.decoder_block4(x, x_skip4, task_emb)
+#     x = self.decoder_block3(x, x_skip3, task_emb)
+#     #x = self.dropout(x)
+#     x = self.decoder_block2(x, x_skip2, task_emb)
+#     x = self.decoder_block1(x, x_skip1, task_emb)
+#     outputs = self.conv_out(x, task_emb)
 
-# bottle
-self.bottle_block = MoDESubNet2Conv(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 8, self.in_channels * self.mult_chan * 16)
 
-# decoder
-self.decoder_block4 = MoDEDecoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 16, self.in_channels * self.mult_chan * 8)
-self.decoder_block3 = MoDEDecoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 8, self.in_channels * self.mult_chan * 4)
-self.decoder_block2 = MoDEDecoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 4, self.in_channels * self.mult_chan * 2)
-self.decoder_block1 = MoDEDecoderBlock(self.num_experts, self.num_tasks, self.in_channels * self.mult_chan * 2, self.in_channels * self.mult_chan)
-
-# conv out
-self.conv_out = MoDEConv(self.num_experts, self.num_tasks, self.mult_chan, self.out_channels, kernel_size=5, padding='same', conv_type='final')
-
-def forward(self, x, t):
-    # task embedding
-    task_emb = self.one_hot_task_embedding(t)
-
-    # encoding
-    #x = self.dropout1(x)
-    print(x.shape)
-    x, x_skip1 = self.encoder_block1(x, task_emb)
-    x, x_skip2 = self.encoder_block2(x, task_emb)
-    #x = self.dropout(x)
-    x, x_skip3 = self.encoder_block3(x, task_emb)
-    x, x_skip4 = self.encoder_block4(x, task_emb)
-    #print(x.shape,x_skip4.shape)
-    #x = self.dropout(x)
-    # bottle
-    x = self.bottle_block(x, task_emb)
-
-    # decoding
-    x = self.dropout_latent(x)
-    x = self.decoder_block4(x, x_skip4, task_emb)
-    x = self.decoder_block3(x, x_skip3, task_emb)
-    #x = self.dropout(x)
-    x = self.decoder_block2(x, x_skip2, task_emb)
-    x = self.decoder_block1(x, x_skip1, task_emb)
-    outputs = self.conv_out(x, task_emb)
-
-"""
 
 
 def one_hot_task_embedding(self: Any, task_id: torch.Tensor) -> torch.Tensor:

@@ -21,6 +21,7 @@ dependencies = [
     "torchvision",
     "tqdm",
     "numpy",
+    "wandb"
 ]
 
 # Optional / extra dependencies (e.g. installed via `pip install .[dev]`)
