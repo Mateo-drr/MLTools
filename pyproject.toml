@@ -1,0 +1,54 @@
+# 1. Build System (PEP 518) — Tells pip what backend builds the package
+[build-system]
+requires = ["hatchling"]  # Or ["setuptools>=61.0"], ["poetry-core"], ["flit_core"]
+build-backend = "hatchling.build"
+
+# 2. Project Metadata (PEP 621) — Package details and dependencies
+[project]
+name = "mltools"
+version = "0.1.0"
+description = "Collection of pytorch tools and blocks"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Mateo Rodriguez", email = "mateodrr@gmail.com" }
+]
+
+# Core runtime dependencies
+dependencies = [
+    "torch",
+    "torchvision",
+    "tqdm",
+    "numpy",
+]
+
+# Optional / extra dependencies (e.g. installed via `pip install .[dev]`)
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pylint",
+    "mypy",
+    "black"
+]
+
+# Project links shown on PyPI
+[project.urls]
+Homepage = "https://github.com/Mateo-drr/MLTools"
+Repository = "https://github.com/Mateo-drr/MLTools.git"
+
+# 3. Tool Configurations — Specific tool settings consolidated in one place
+
+[tool.pylint.main]
+py-version = "3.12"
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["mltools"]

@@ -4,29 +4,32 @@ Created on Fri Jul 26 16:04:55 2024
 
 @author: Mateo-drr
 """
-from typing import Literal
+
+from typing import Literal, Any
 
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 import torch
 
+
 class CustomDataset(Dataset):
-    def __init__(self, config):
+    def __init__(self, config) -> None:
         super().__init__()
         self.config = config
-        self.data = [torch.rand(8,16)]
+        self.data = [torch.rand(8, 16)]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data)
 
-    def __getitem__(self, idx):    
+    def __getitem__(self, idx) -> dict[str, Any]:
         data = self.data[idx]
         data = torch.tensor(data)
         return {
-            'data':data,
+            "data": data,
         }
 
-def make_train_dl(config, split: Literal["train", "valid", "test"]):
+
+def make_dl(config, split: Literal["train", "valid", "test"]):
     dataset = CustomDataset(config)
     dataloader = None
     match split:
@@ -37,7 +40,9 @@ def make_train_dl(config, split: Literal["train", "valid", "test"]):
                 pin_memory=True,
                 shuffle=True,
                 num_workers=config.num_workers,
-                prefetch_factor=config.prefetch_factor if config.num_workers > 0 else None,
+                prefetch_factor=(
+                    config.prefetch_factor if config.num_workers > 0 else None
+                ),
             )
         case "valid":
             dataloader = DataLoader(

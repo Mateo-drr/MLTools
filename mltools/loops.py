@@ -1,12 +1,14 @@
 """
 Train and Eval loops
 """
+
 from collections import defaultdict
 from tqdm import tqdm
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
 import utils
+
 
 def run_model(model: nn.Module, samples: dict, criterion, config) -> dict:
     """
@@ -35,15 +37,15 @@ def run_model(model: nn.Module, samples: dict, criterion, config) -> dict:
 
 
 def train_loop(
-        model: nn.Module,
-        train_dl: DataLoader,
-        criterion,
-        optim: torch.optim.Optimizer,
-        scaler: torch.amp.GradScaler,
-        wb_metrics: dict,
-        config,
-        epoch: int,
-        scheduler: torch.optim.lr_scheduler.LRScheduler | None = None
+    model: nn.Module,
+    train_dl: DataLoader,
+    criterion,
+    optim: torch.optim.Optimizer,
+    scaler: torch.amp.GradScaler,
+    wb_metrics: dict,
+    config,
+    epoch: int,
+    scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
 ):
     """
     Train loop
@@ -61,7 +63,7 @@ def train_loop(
     model.train()
     results = defaultdict(list)
 
-    for sample in tqdm(train_dl,desc=f"Epoch {epoch + 1}/{config.num_epochs}"):
+    for sample in tqdm(train_dl, desc=f"Epoch {epoch + 1}/{config.num_epochs}"):
         optim.zero_grad()
         if config.half_p:
             with torch.amp.autocast(device_type=config.device):
@@ -88,12 +90,12 @@ def train_loop(
 
 
 def eval_loop(
-        model: nn.Module,
-        dataloader: DataLoader,
-        criterion,
-        eval_name: str,
-        wb_metrics: dict,
-        config,
+    model: nn.Module,
+    dataloader: DataLoader,
+    criterion,
+    eval_name: str,
+    wb_metrics: dict,
+    config,
 ):
     """
     Validation loop

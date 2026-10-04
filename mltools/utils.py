@@ -1,6 +1,7 @@
 """
 Utility functions
 """
+
 import numpy as np
 import torch
 import wandb
@@ -9,15 +10,15 @@ from datetime import datetime
 from pprint import pprint
 import copy
 
-def print_list(items):
-    for i,item in enumerate(items):
-        print(i,item)
 
-def eta(start_time: float,
-        epoch_start: float,
-        epoch_end: float,
-        epoch: int,
-        num_epochs: int):
+def print_list(items):
+    for i, item in enumerate(items):
+        print(i, item)
+
+
+def eta(
+    start_time: float, epoch_start: float, epoch_end: float, epoch: int, num_epochs: int
+):
     """
     Calculate and print estimated time of arrival (ETA) for training epochs.
 
@@ -60,20 +61,18 @@ def format_time(seconds: float) -> str:
 
 
 def count_params(model):
-    """ Print trainable and total number of parameters in model"""
+    """Print trainable and total number of parameters in model"""
     total_params = sum(p.numel() for p in model.parameters())
-    trainable_params = sum(
-        p.numel() for p in model.parameters() if p.requires_grad
-    )
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Total parameters: {total_params}")
     print(f"Trainable parameters: {trainable_params}")
 
+
 def format_metrics(outputs, results):
     for key, value in outputs.items():
-        results[key].append(
-            value.item() if isinstance(value, torch.Tensor) else value
-        )
+        results[key].append(value.item() if isinstance(value, torch.Tensor) else value)
     return results
+
 
 def epoch_results(results: dict, formated: dict, split: str) -> dict:
     """
@@ -91,6 +90,7 @@ def epoch_results(results: dict, formated: dict, split: str) -> dict:
         formated[split][key] = mean_value.item()
     return formated
 
+
 def finish_epoch(epoch, wb_metrics, timings, current_best, current_lr, model, config):
     print(
         f"Epoch {epoch}: "
@@ -104,10 +104,7 @@ def finish_epoch(epoch, wb_metrics, timings, current_best, current_lr, model, co
         formatted["learning_rate"] = current_lr
         wandb.log(formatted)
 
-    eta(
-        timings["start"], timings["epoch_start"], time.time(), epoch,
-        config.num_epochs
-    )
+    eta(timings["start"], timings["epoch_start"], time.time(), epoch, config.num_epochs)
 
     if epoch == 0 or current_best["loss"] > wb_metrics["valid"]["loss"]:
         print("=" * 10)

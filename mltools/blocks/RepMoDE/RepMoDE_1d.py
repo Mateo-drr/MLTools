@@ -1,10 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar 10 22:54:53 2025
+
+@author: Mateo-drr
+"""
 
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
 import math
 
-'''
+"""
 Sample usage
 
 # encoder
@@ -30,15 +36,12 @@ def forward(self, x, t):
     task_emb = self.one_hot_task_embedding(t)
 
     # encoding
-    #x = self.dropout1(x)
     print(x.shape)
     x, x_skip1 = self.encoder_block1(x, task_emb)
     x, x_skip2 = self.encoder_block2(x, task_emb)
-    #x = self.dropout(x)
     x, x_skip3 = self.encoder_block3(x, task_emb)
     x, x_skip4 = self.encoder_block4(x, task_emb)
-    #print(x.shape,x_skip4.shape)
-    #x = self.dropout(x)
+    
     # bottle
     x = self.bottle_block(x, task_emb)
 
@@ -46,12 +49,11 @@ def forward(self, x, t):
     x = self.dropout_latent(x)
     x = self.decoder_block4(x, x_skip4, task_emb)
     x = self.decoder_block3(x, x_skip3, task_emb)
-    #x = self.dropout(x)
     x = self.decoder_block2(x, x_skip2, task_emb)
     x = self.decoder_block1(x, x_skip1, task_emb)
     outputs = self.conv_out(x, task_emb)
+"""
 
-'''
 
 def one_hot_task_embedding(self, task_id):
     N = task_id.shape[0]
@@ -60,6 +62,7 @@ def one_hot_task_embedding(self, task_id):
         task_embedding[i, task_id[i]] = 1
     return task_embedding.to(self.device)
 
+
 class MoDEEncoderBlock(torch.nn.Module):
     def __init__(self, num_experts, num_tasks, in_chan, out_chan):
         super().__init__()
@@ -67,8 +70,8 @@ class MoDEEncoderBlock(torch.nn.Module):
         self.out_chan = out_chan
         self.conv_more = MoDESubNet2Conv(num_experts, num_tasks, in_chan, out_chan)
         self.conv_down = torch.nn.Sequential(
-            torch.nn.Conv3d(out_chan, out_chan, kernel_size=2, stride=2, bias=False),
-            nn.BatchNorm3d(out_chan, affine=True),#torch.nn.BatchNorm3d(out_chan),
+            torch.nn.Conv1d(out_chan, out_chan, kernel_size=2, stride=2, bias=False),
+            nn.BatchNorm1d(out_chan, affine=True),
             torch.nn.Mish(inplace=True),
         )
 
@@ -84,8 +87,10 @@ class MoDEDecoderBlock(torch.nn.Module):
         self.in_chan = in_chan
         self.out_chan = out_chan
         self.convt = torch.nn.Sequential(
-            torch.nn.ConvTranspose3d(in_chan, out_chan, kernel_size=2, stride=2, bias=False),
-            nn.InstanceNorm3d(out_chan, affine=True),#torch.nn.BatchNorm3d(out_chan),
+            torch.nn.ConvTranspose1d(
+                in_chan, out_chan, kernel_size=2, stride=2, bias=False
+            ),
+            nn.InstanceNorm1d(out_chan, affine=True),
             torch.nn.Mish(inplace=True),
         )
         self.conv_less = MoDESubNet2Conv(num_experts, num_tasks, in_chan, out_chan)
@@ -100,19 +105,32 @@ class MoDEDecoderBlock(torch.nn.Module):
 class MoDESubNet2Conv(torch.nn.Module):
     def __init__(self, num_experts, num_tasks, n_in, n_out):
         super().__init__()
-        self.conv1 = MoDEConv(num_experts, num_tasks, n_in, n_out, kernel_size=5, padding='same')
-        self.conv2 = MoDEConv(num_experts, num_tasks, n_out, n_out, kernel_size=5, padding='same')
-
+        self.conv1 = MoDEConv(
+            num_experts, num_tasks, n_in, n_out, kernel_size=5, padding="same"
+        )
+        self.conv2 = MoDEConv(
+            num_experts, num_tasks, n_out, n_out, kernel_size=5, padding="same"
+        )
 
     def forward(self, x, t):
-        x = self.conv1(x, t) #[b,16,64,64,64] #[...,32,32,32] ... 4,4,4
-        #x = self.rrdb(x)
+        x = self.conv1(x, t)
         x = self.conv2(x, t)
         return x
 
 
 class MoDEConv(torch.nn.Module):
-    def __init__(self, num_experts, num_tasks, in_chan, out_chan, kernel_size=5, stride=1, padding='same', conv_type='normal'):
+    def __init__(
+        self,
+        num_experts,
+        num_tasks,
+        in_chan,
+        out_chan,
+        kernel_size=5,
+        stride=1,
+        padding="same",
+        conv_type="normal",
+        causal=False,
+    ):
         super().__init__()
 
         self.num_experts = num_experts
@@ -123,19 +141,20 @@ class MoDEConv(torch.nn.Module):
         self.conv_type = conv_type
         self.stride = stride
         self.padding = padding
+        self.causal = causal
 
         self.expert_conv5x5_conv = self.gen_conv_kernel(self.out_chan, self.in_chan, 5)
         self.expert_conv3x3_conv = self.gen_conv_kernel(self.out_chan, self.in_chan, 3)
         self.expert_conv1x1_conv = self.gen_conv_kernel(self.out_chan, self.in_chan, 1)
-        self.register_buffer('expert_avg3x3_pool', self.gen_avgpool_kernel(3))
+        self.register_buffer("expert_avg3x3_pool", self.gen_avgpool_kernel(3))
         self.expert_avg3x3_conv = self.gen_conv_kernel(self.out_chan, self.in_chan, 1)
-        self.register_buffer('expert_avg5x5_pool', self.gen_avgpool_kernel(5))
+        self.register_buffer("expert_avg5x5_pool", self.gen_avgpool_kernel(5))
         self.expert_avg5x5_conv = self.gen_conv_kernel(self.out_chan, self.in_chan, 1)
 
-        assert self.conv_type in ['normal', 'final']
-        if self.conv_type == 'normal':
+        assert self.conv_type in ["normal", "final"]
+        if self.conv_type == "normal":
             self.subsequent_layer = torch.nn.Sequential(
-                nn.InstanceNorm3d(out_chan, affine=True), #torch.nn.BatchNorm3d(out_chan),
+                nn.InstanceNorm1d(out_chan, affine=True),
                 torch.nn.Mish(inplace=True),
             )
         else:
@@ -144,63 +163,115 @@ class MoDEConv(torch.nn.Module):
         self.gate = torch.nn.Linear(num_tasks, num_experts * self.out_chan, bias=True)
         self.softmax = torch.nn.Softmax(dim=1)
 
-
     def gen_conv_kernel(self, Co, Ci, K):
-        weight = torch.nn.Parameter(torch.empty(Co, Ci, K, K, K))
-        torch.nn.init.kaiming_uniform_(weight, a=math.sqrt(5), mode='fan_out')
+        # For 1D convolution, kernel shape is (Co, Ci, K)
+        weight = torch.nn.Parameter(torch.empty(Co, Ci, K))
+        torch.nn.init.kaiming_uniform_(weight, a=math.sqrt(5), mode="fan_out")
         return weight
 
     def gen_avgpool_kernel(self, K):
-        weight = torch.ones(K, K, K).mul(1.0 / K ** 3)
+        # For 1D convolution, kernel shape is (K)
+        weight = torch.ones(K).mul(1.0 / K)
         return weight
 
     def trans_kernel(self, kernel, target_size):
-        Dp = (target_size - kernel.shape[2]) // 2
-        Hp = (target_size - kernel.shape[3]) // 2
-        Wp = (target_size - kernel.shape[4]) // 2
-        return F.pad(kernel, [Wp, Wp, Hp, Hp, Dp, Dp])
+        # For 1D convolution, padding is only applied to the last dimension
+        if self.causal:
+            Wp = target_size - kernel.shape[2]
+            return F.pad(kernel, [Wp, 0])
+        else:
+            Wp = (target_size - kernel.shape[2]) // 2
+            return F.pad(kernel, [Wp, Wp])
 
     def routing(self, g, N):
-
         expert_conv5x5 = self.expert_conv5x5_conv
         expert_conv3x3 = self.trans_kernel(self.expert_conv3x3_conv, self.kernel_size)
         expert_conv1x1 = self.trans_kernel(self.expert_conv1x1_conv, self.kernel_size)
+
+        # For 1D convolution, we use einsum with appropriate dimensions
         expert_avg3x3 = self.trans_kernel(
-            torch.einsum('oidhw,dhw->oidhw', self.expert_avg3x3_conv, self.expert_avg3x3_pool),
+            torch.einsum(
+                "oiw,w->oiw", self.expert_avg3x3_conv, self.expert_avg3x3_pool
+            ),
             self.kernel_size,
         )
-        expert_avg5x5 = torch.einsum('oidhw,dhw->oidhw', self.expert_avg5x5_conv, self.expert_avg5x5_pool)
+        expert_avg5x5 = torch.einsum(
+            "oiw,w->oiw", self.expert_avg5x5_conv, self.expert_avg5x5_pool
+        )
 
         weights = list()
         for n in range(N):
-            weight_nth_sample = torch.einsum('oidhw,o->oidhw', expert_conv5x5, g[n, 0, :]) + \
-                                torch.einsum('oidhw,o->oidhw', expert_conv3x3, g[n, 1, :]) + \
-                                torch.einsum('oidhw,o->oidhw', expert_conv1x1, g[n, 2, :]) + \
-                                torch.einsum('oidhw,o->oidhw', expert_avg3x3, g[n, 3, :]) + \
-                                torch.einsum('oidhw,o->oidhw', expert_avg5x5, g[n, 4, :])
+            weight_nth_sample = (
+                torch.einsum("oiw,o->oiw", expert_conv5x5, g[n, 0, :])
+                + torch.einsum("oiw,o->oiw", expert_conv3x3, g[n, 1, :])
+                + torch.einsum("oiw,o->oiw", expert_conv1x1, g[n, 2, :])
+                + torch.einsum("oiw,o->oiw", expert_avg3x3, g[n, 3, :])
+                + torch.einsum("oiw,o->oiw", expert_avg5x5, g[n, 4, :])
+            )
             weights.append(weight_nth_sample)
         weights = torch.stack(weights)
 
         return weights
 
     def forward(self, x, t):
+        N = x.shape[0]  # batch size
 
-        N = x.shape[0] #batch size
-
-        g = self.gate(t) #[b, x out channels * experts]
-        g = g.view((N, self.num_experts, self.out_chan)) #[b,experts,x out channels]
+        g = self.gate(t)  # [b, x out channels * experts]
+        g = g.view((N, self.num_experts, self.out_chan))  # [b,experts,x out channels]
         g = self.softmax(g)
 
-        w = self.routing(g, N) #[b,x out chann, 1, 5,5,5] mix expert kernels
+        w = self.routing(g, N)  # [b,x out chann, 1, 5] mix expert kernels
 
-        if self.training:
-            y = list()
-            for i in range(N):
-                y.append(F.conv3d(x[i].unsqueeze(0), w[i], bias=None, stride=1, padding='same'))
-            y = torch.cat(y, dim=0)
+        if self.causal:  # handle padding to not look into i+1 items
+            padLeft = self.kernel_size - 1
+            x = x.transpose(1, 2)  # makes [b,seqlen,dmodel] to [b,dmodel,seqlen]
+            """
+            processing everything as one batch
+            """
+
+            # Pad the entire batch at once
+            x_padded = F.pad(x, (padLeft, 0), "constant", 0)  # Shape: [48, 768, 387]
+
+            # Create a single large batch for all examples
+            x_batched = x_padded.view(
+                1, -1, x_padded.shape[2]
+            )  # Shape: [1, 48*768, 387]
+
+            # Reshape and concatenate all weights
+            w_batched = w.view(
+                N * self.out_chan, self.in_chan, self.kernel_size
+            )  # Shape: [48*768, 768, 5]
+
+            # Use grouped convolution
+            y_batched = F.conv1d(
+                x_batched,  # [1, 48*768, 387]
+                w_batched,  # [48*768, 768, 5]
+                bias=None,
+                stride=1,
+                padding=0,
+                groups=N,  # 48 groups
+            )
+
+            # Reshape result back to original batch format
+            y = y_batched.view(N, self.out_chan, -1)  # Shape: [48, 768, 383]
+
         else:
-            y = F.conv3d(x, w[0], bias=None, stride=1, padding='same')
+            # non causal case (this is not optimized as the causal code but is equal)
+            if self.training:
+                y = list()
+                for i in range(N):
+                    y.append(
+                        F.conv1d(
+                            x[i].unsqueeze(0), w[i], bias=None, stride=1, padding="same"
+                        )
+                    )
+                y = torch.cat(y, dim=0)
+            else:
+                y = F.conv1d(x, w[0], bias=None, stride=1, padding="same")
 
         y = self.subsequent_layer(y)
+
+        if self.causal:
+            y = y.transpose(1, 2)
 
         return y

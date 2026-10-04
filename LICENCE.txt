@@ -1,0 +1,222 @@
+MLTools NON-COMMERCIAL SOURCE-AVAILABLE LICENSE v1.0
+
+Copyright (c) 2026 Mateo Rodriguez
+
+DEFINITIONS
+
+"Software" means the original software contained in this repository that is
+copyrighted by the Licensor, including source code, documentation, and other
+original materials, but excluding Third-Party Materials.
+
+"Licensor" means Mateo Rodriguez, the copyright holder of the Software.
+
+"Third-Party Materials" means software, source code, models, data, assets,
+documentation, or other materials included in or distributed with the
+Software that are not owned by the Licensor and are identified as being
+subject to separate license terms.
+
+"Commercial Use" means any use of the Software that is primarily intended
+for or directed toward commercial advantage, monetary compensation, revenue
+generation, or the operation or delivery of a commercial product or service.
+
+Commercial Use includes, without limitation:
+
+incorporating the Software into a product or service that is sold,
+licensed, or otherwise provided for monetary compensation;
+
+using the Software to provide a paid service, API, hosted service, SaaS,
+or other revenue-generating service;
+
+using the Software as a material component of a commercial production
+system or workflow;
+
+using the Software to develop, operate, or deliver products or services
+for which the user or another party receives monetary compensation;
+
+distributing the Software, or a derivative work based on it, as part of
+a commercial product or service;
+
+using the Software for the primary purpose of obtaining a commercial
+advantage or generating revenue.
+
+Commercial Use does not arise solely because the person or organization
+using the Software is a for-profit company, employs paid staff, or otherwise
+engages in commercial activities, provided that the particular use of the
+Software is not itself directed toward commercial advantage, monetary
+compensation, revenue generation, or the operation or delivery of a
+commercial product or service.
+
+"Non-Commercial Use" means use of the Software that is not Commercial Use,
+including personal use, hobby projects, education, academic research,
+non-commercial research, experimentation, evaluation, and other activities
+that are not primarily intended for or directed toward commercial advantage
+or monetary compensation.
+
+The determination of whether a particular use constitutes Commercial Use
+shall be based on the purpose and circumstances of that use, rather than
+solely on the identity or legal status of the user or organization.
+
+LICENSE GRANT
+
+Subject to the terms of this License, the Licensor grants you a worldwide,
+non-exclusive, royalty-free, non-transferable license to:
+
+use the Software for Non-Commercial Use;
+
+copy the Software for Non-Commercial Use;
+
+study the Software;
+
+modify the Software;
+
+create derivative works based on the Software; and
+
+distribute original or modified copies of the Software for Non-Commercial
+Use.
+
+COMMERCIAL USE
+
+Commercial Use of the Software is not permitted under this License.
+
+You may engage in Commercial Use only after obtaining a separate commercial
+license or other written permission from the Licensor.
+
+The Licensor may grant commercial licenses under separate terms, including
+terms requiring payment of a license fee, subscription, royalty, or other
+compensation.
+
+A commercial license may authorize uses that are prohibited by this License,
+including incorporation into commercial products or services, commercial
+distribution, operation of commercial production systems, and provision of
+paid services using the Software.
+
+Nothing in this section prohibits Non-Commercial Use merely because the user
+is employed by, affiliated with, or otherwise associated with a commercial
+organization, provided that the particular use qualifies as Non-Commercial
+Use under this License.
+
+REDISTRIBUTION
+
+You may redistribute the Software, including modified versions, for
+Non-Commercial Use provided that:
+
+this License is included with the redistribution;
+
+copyright and attribution notices belonging to the Licensor are preserved;
+
+you clearly identify modifications that you have made; and
+
+you do not represent modified versions as being the original Software.
+
+You may not redistribute the Software for Commercial Use without a separate
+commercial license from the Licensor.
+
+MODIFICATIONS AND DERIVATIVE WORKS
+
+You are permitted to modify the Software and create derivative works for
+Non-Commercial Use.
+
+Your modifications and derivative works based on the Software remain subject
+to the restrictions on Commercial Use contained in this License, except where
+a separate license applies to Third-Party Materials.
+
+You may publish and distribute your modifications and derivative works for
+Non-Commercial Use, provided that you comply with this License and all
+applicable licenses for Third-Party Materials.
+
+THIRD-PARTY MATERIALS
+
+This License does not apply to Third-Party Materials.
+
+Third-Party Materials remain subject to their respective original licenses,
+copyright notices, and other applicable terms.
+
+Nothing in this License is intended to restrict, revoke, or replace rights
+that you receive directly from a third-party copyright holder under a
+separate license.
+
+Where Third-Party Materials are distributed under a license that permits
+Commercial Use, this License does not revoke or restrict those permissions
+with respect to those Third-Party Materials.
+
+Where Third-Party Materials are subject to additional restrictions, those
+restrictions continue to apply.
+
+The Licensor makes no claim of ownership over Third-Party Materials.
+
+A list of known Third-Party Materials and their applicable licenses may be
+provided in the THIRD_PARTY_LICENSES directory or accompanying
+documentation.
+
+ATTRIBUTION AND COPYRIGHT NOTICES
+
+You must retain existing copyright notices and license notices belonging to
+the Licensor or Third-Party Materials.
+
+You must not remove or obscure attribution notices required by applicable
+Third-Party Materials licenses.
+
+When redistributing the Software or a derivative work for Non-Commercial Use,
+you must retain a copy of this License and clearly identify the original
+Software and any substantial modifications you have made.
+
+TRADEMARKS
+
+This License does not grant permission to use any trademarks, service marks,
+logos, or names belonging to the Licensor, except as reasonably necessary to
+identify the Software or accurately describe its origin.
+
+NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, TITLE, AND NONINFRINGEMENT.
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE LICENSOR SHALL NOT BE LIABLE FOR
+ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+TERMINATION
+
+The rights granted under this License terminate automatically if you violate
+any term of this License.
+
+Upon termination, you must cease exercising the rights granted by this
+License and, where reasonably practicable, cease distributing or making
+available copies of the Software under this License.
+
+Termination does not affect rights that have been independently granted
+under applicable licenses for Third-Party Materials.
+
+COMMERCIAL LICENSE
+
+Nothing in this License prevents the Licensor from granting separate
+commercial licenses to any person or organization.
+
+A commercial license may grant rights that are not available under this
+License, including Commercial Use, commercial distribution, incorporation
+into commercial products or services, and use of the Software in commercial
+production systems.
+
+Commercial license terms, including fees and permitted uses, are determined
+separately by the Licensor.
+
+RESERVATION OF RIGHTS
+
+The Software and all rights not expressly granted under this License remain
+the property of the Licensor or their respective copyright holders.
+
+This License does not transfer ownership of the Software to any recipient.
+
+SEVERABILITY
+
+If any provision of this License is determined to be invalid or
+unenforceable, the remaining provisions shall remain in effect to the
+maximum extent permitted by law.
+
+ENTIRE LICENSE
+
+This License constitutes the complete license granted by the Licensor for
+the Software and supersedes any conflicting license statement made by the
+Licensor regarding the Software, except for separate written commercial
+licenses and the licenses governing Third-Party Materials.

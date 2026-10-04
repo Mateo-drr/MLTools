@@ -1,20 +1,21 @@
-
 import torch
 from torch import nn
 import torch.nn.functional as F
 import math
 
+
 class MoDE(nn.Module):
     """
     MoDEConv2d wrapper to simplify usage
     """
+
     def __init__(
-            self,
-            in_chans: int,
-            out_chans: int,
-            num_tasks: int,
-            global_task_train_prob: float = 0.2,
-            global_task_id: int = 0,
+        self,
+        in_chans: int,
+        out_chans: int,
+        num_tasks: int,
+        global_task_train_prob: float = 0.2,
+        global_task_id: int = 0,
     ):
         """
         Args:
@@ -58,16 +59,17 @@ class MoDE(nn.Module):
         for tid in task_ids:
             # Create one-hot encoding for this task
             # pylint: disable=not-callable
-            t = F.one_hot(
-                torch.tensor([tid]), num_classes=self.num_tasks
-            ).float().to(
-                next(self.parameters()).device
+            t = (
+                F.one_hot(torch.tensor([tid]), num_classes=self.num_tasks)
+                .float()
+                .to(next(self.parameters()).device)
             )
 
             # Get gating weights
             g = self.mode.gate(t)  # [1, num_experts * out_chan]
-            g = g.view(self.mode.num_experts,
-                       self.mode.out_chan)  # [num_experts, out_chan]
+            g = g.view(
+                self.mode.num_experts, self.mode.out_chan
+            )  # [num_experts, out_chan]
             g = self.mode.softmax(g.unsqueeze(0)).squeeze(0)  # Apply softmax
 
             weights[tid] = g.detach().cpu().numpy()
@@ -82,17 +84,13 @@ class MoDE(nn.Module):
             assert task_id.max() < self.num_tasks
             b = x.shape[0]
             # Random mask: True for samples that should use global task
-            mask = torch.rand(
-                b, device=task_id.device
-            ) < self.global_task_train_prob
+            mask = torch.rand(b, device=task_id.device) < self.global_task_train_prob
             # Replace masked task IDs with global task ID
             task_id = task_id.clone()  # Don't modify original
             task_id[mask] = self.global_task_id
 
         # pylint: disable=not-callable
-        task = F.one_hot(
-            task_id, num_classes=self.num_tasks
-        ).float().to(x.device)
+        task = F.one_hot(task_id, num_classes=self.num_tasks).float().to(x.device)
 
         x = self.mode(x, task, grouped=grouped)
         return x, task_id
@@ -102,16 +100,17 @@ class MoDEConv2D(torch.nn.Module):
     """
     Mixture of Diverse Experts for 2d
     """
+
     def __init__(
-            self,
-            num_experts: int,
-            num_tasks: int,
-            in_chan: int,
-            out_chan: int,
-            kernel_size: int = 5,
-            stride: int = 1,
-            padding: str = "same",
-            conv_type: str = "normal",
+        self,
+        num_experts: int,
+        num_tasks: int,
+        in_chan: int,
+        out_chan: int,
+        kernel_size: int = 5,
+        stride: int = 1,
+        padding: str = "same",
+        conv_type: str = "normal",
     ):
         super().__init__()
 
@@ -130,14 +129,10 @@ class MoDEConv2D(torch.nn.Module):
         self.expert_conv1x1_conv = self.gen_conv_kernel(out_chan, in_chan, 1)
 
         # Expert pooled convolution kernels
-        self.register_buffer(
-            "expert_avg3x3_pool", self.gen_avg_pool_kernel(3)
-        )
+        self.register_buffer("expert_avg3x3_pool", self.gen_avg_pool_kernel(3))
         self.expert_avg3x3_conv = self.gen_conv_kernel(out_chan, in_chan, 1)
 
-        self.register_buffer(
-            "expert_avg5x5_pool", self.gen_avg_pool_kernel(5)
-        )
+        self.register_buffer("expert_avg5x5_pool", self.gen_avg_pool_kernel(5))
         self.expert_avg5x5_conv = self.gen_conv_kernel(out_chan, in_chan, 1)
 
         # Optional normalization and activation
@@ -161,7 +156,7 @@ class MoDEConv2D(torch.nn.Module):
 
     @staticmethod
     def gen_avg_pool_kernel(kernel_size):
-        return torch.ones(kernel_size, kernel_size).mul(1.0 / kernel_size ** 2)
+        return torch.ones(kernel_size, kernel_size).mul(1.0 / kernel_size**2)
 
     @staticmethod
     def trans_kernel(kernel, target_size):
@@ -171,33 +166,27 @@ class MoDEConv2D(torch.nn.Module):
     def routing(self, g, batch_size):
         # Resize and combine expert kernels with gate weights
         expert_conv5x5 = self.expert_conv5x5_conv
-        expert_conv3x3 = self.trans_kernel(
-            self.expert_conv3x3_conv, self.kernel_size
-        )
-        expert_conv1x1 = self.trans_kernel(
-            self.expert_conv1x1_conv, self.kernel_size
-        )
+        expert_conv3x3 = self.trans_kernel(self.expert_conv3x3_conv, self.kernel_size)
+        expert_conv1x1 = self.trans_kernel(self.expert_conv1x1_conv, self.kernel_size)
 
         expert_avg3x3 = self.trans_kernel(
             torch.einsum(
-                "oihw,hw->oihw", self.expert_avg3x3_conv,
-                self.expert_avg3x3_pool
+                "oihw,hw->oihw", self.expert_avg3x3_conv, self.expert_avg3x3_pool
             ),
             self.kernel_size,
         )
         expert_avg5x5 = torch.einsum(
-            "oihw,hw->oihw", self.expert_avg5x5_conv,
-            self.expert_avg5x5_pool
+            "oihw,hw->oihw", self.expert_avg5x5_conv, self.expert_avg5x5_pool
         )
 
         weights = []
         for n in range(batch_size):
             w = (
-                    torch.einsum("oihw,o->oihw", expert_conv5x5, g[n, 0, :])
-                    + torch.einsum("oihw,o->oihw", expert_conv3x3, g[n, 1, :])
-                    + torch.einsum("oihw,o->oihw", expert_conv1x1, g[n, 2, :])
-                    + torch.einsum("oihw,o->oihw", expert_avg3x3, g[n, 3, :])
-                    + torch.einsum("oihw,o->oihw", expert_avg5x5, g[n, 4, :])
+                torch.einsum("oihw,o->oihw", expert_conv5x5, g[n, 0, :])
+                + torch.einsum("oihw,o->oihw", expert_conv3x3, g[n, 1, :])
+                + torch.einsum("oihw,o->oihw", expert_conv1x1, g[n, 2, :])
+                + torch.einsum("oihw,o->oihw", expert_avg3x3, g[n, 3, :])
+                + torch.einsum("oihw,o->oihw", expert_avg5x5, g[n, 4, :])
             )
             weights.append(w)
         return torch.stack(weights)
@@ -206,30 +195,28 @@ class MoDEConv2D(torch.nn.Module):
         batch_size = x.shape[0]  # batch size
 
         g = self.gate(t)  # [batch_size, num_experts * out_chan]
-        g = g.view(
-            batch_size, self.num_experts, self.out_chan
-        )
+        g = g.view(batch_size, self.num_experts, self.out_chan)
         g = self.softmax(g)
 
         w = self.routing(g, batch_size)  # [batch_size, out_chan, in_chan, K, K]
 
         if grouped:
-            x_grouped = x.view(
-                1, batch_size * self.in_chan, x.shape[2], x.shape[3]
+            x_grouped = x.view(1, batch_size * self.in_chan, x.shape[2], x.shape[3])
+            w_grouped = w.view(
+                batch_size * self.out_chan,
+                self.in_chan,
+                self.kernel_size,
+                self.kernel_size,
             )
-            w_grouped = w.view(batch_size * self.out_chan, self.in_chan,
-                               self.kernel_size, self.kernel_size)
             # pylint: disable=not-callable
             y_grouped = F.conv2d(
                 x_grouped,
                 w_grouped,
                 padding=self.padding,
                 stride=self.stride,
-                groups=batch_size
+                groups=batch_size,
             )
-            y = y_grouped.view(
-                batch_size, self.out_chan, x.shape[2], x.shape[3]
-            )
+            y = y_grouped.view(batch_size, self.out_chan, x.shape[2], x.shape[3])
 
         else:
             y = torch.cat(
@@ -239,9 +226,11 @@ class MoDEConv2D(torch.nn.Module):
                         x[i].unsqueeze(0),
                         w[i],
                         stride=self.stride,
-                        padding=self.padding
+                        padding=self.padding,
                     )
                     for i in range(batch_size)
-                ], dim=0)
+                ],
+                dim=0,
+            )
 
         return self.subsequent_layer(y)

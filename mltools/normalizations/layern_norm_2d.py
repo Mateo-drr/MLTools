@@ -1,19 +1,20 @@
-
 import torch
 from torch import nn
 import torch.nn.functional as F
 from typing import Literal
+
 
 class LayerNorm(nn.Module):
     """
     LayerNorm 2d
     Source: convnext
     """
+
     def __init__(
-            self,
-            normalized_shape:int,
-            eps:float=1e-6,
-            data_format:Literal["chan_first", "chan_last"]="chan_first"
+        self,
+        normalized_shape: int,
+        eps: float = 1e-6,
+        data_format: Literal["chan_first", "chan_last"] = "chan_first",
     ):
         """
         Supports two data formats: chan_first (default) or
@@ -32,8 +33,9 @@ class LayerNorm(nn.Module):
 
     def forward(self, x):
         if self.data_format == "chan_last":
-            return F.layer_norm(x, self.normalized_shape, self.weight,
-                                self.bias, self.eps)
+            return F.layer_norm(
+                x, self.normalized_shape, self.weight, self.bias, self.eps
+            )
         elif self.data_format == "chan_first":
             u = x.mean(1, keepdim=True)
             s = (x - u).pow(2).mean(1, keepdim=True)
@@ -42,4 +44,3 @@ class LayerNorm(nn.Module):
             return x
         else:
             raise NotImplementedError
-
