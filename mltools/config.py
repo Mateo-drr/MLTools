@@ -1,5 +1,12 @@
-"""Configuration used for the model"""
+# -*- coding: utf-8 -*-
+"""
+Configuration used for the model
+Created on Sun Oct 04 21:15:35 2026
 
+@author: Mateo-drr
+"""
+
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 import torch.optim as optim
@@ -10,13 +17,19 @@ cwd = Path(__file__).resolve().parent
 
 @dataclass
 class Config:
+    """
+    Hyperparameters and options of a training run
+    """
+
     # training
     threads: int | None = 4  # None to disable
     cudnn_bench: bool = True
     lr: float = 1e-2
-    optimizer = optim.AdamW
-    criterion = nn.MSELoss
-    scheduler = optim.lr_scheduler.CosineAnnealingLR  # None to disable it
+    optimizer: Callable[..., optim.Optimizer] = optim.AdamW
+    criterion: Callable[..., nn.Module] = nn.MSELoss
+    scheduler: Callable[..., optim.lr_scheduler.LRScheduler] | None = (
+        optim.lr_scheduler.CosineAnnealingLR
+    )  # None to disable it
     grad_clip: float = 1.0
     num_epochs: int = 12
     batch: int = 64

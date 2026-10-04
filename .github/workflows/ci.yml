@@ -27,14 +27,12 @@ jobs:
           python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e ".[dev]"
 
-      # known-failing: 6.5/10, remove continue-on-error once clean
+      # known-failing: 7.6/10, remove continue-on-error once clean
       - name: Pylint
         continue-on-error: true
         run: pylint mltools
 
-      # known-failing: 151 strict errors, remove continue-on-error once clean
       - name: Mypy
-        continue-on-error: true
         run: mypy
 
       - name: Pytest

@@ -1,20 +1,31 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Oct 04 21:15:35 2026
+
+@author: Mateo-drr
+"""
+
 import torch
 from torch import nn
 from mltools.normalizations.layern_norm_2d import LayerNorm
 
 
 class ConvNeXtBlock(nn.Module):
-    r"""ConvNeXt Block. There are two equivalent implementations:
+    """
+    ConvNeXt block, there are two equivalent implementations:
     (1) DwConv -> LayerNorm (channels_first) -> 1x1 Conv -> GELU -> 1x1 Conv; all in (N, C, H, W)
     (2) DwConv -> Permute to (N, H, W, C); LayerNorm (channels_last) -> Linear -> GELU -> Linear; Permute back
-    We use (2) as we find it slightly faster in PyTorch
-
-    Args:
-        dim (int): Number of input channels.
-        layer_scale_init_value (float): Init value for Layer Scale. Default: 1e-6.
+    This block uses (2) as it is slightly faster in PyTorch
     """
 
-    def __init__(self, dim, layer_scale_init_value=1e-6):
+    def __init__(self, dim: int, layer_scale_init_value: float = 1e-6) -> None:
+        """
+        Build a ConvNeXt block
+        Args
+            self: ConvNeXt block instance
+            dim: Number of input channels
+            layer_scale_init_value: Initial value of LayerScale, disabled when not positive
+        """
         super().__init__()
         # depthwise conv
         self.dw_conv = nn.Conv2d(dim, dim, kernel_size=7, padding=3, groups=dim)
@@ -23,7 +34,7 @@ class ConvNeXtBlock(nn.Module):
         self.pw_conv1 = nn.Linear(dim, 4 * dim)
         self.act = nn.GELU()
         self.pw_conv2 = nn.Linear(4 * dim, dim)
-        self.gamma = (
+        self.gamma: nn.Parameter | None = (
             nn.Parameter(layer_scale_init_value * torch.ones(dim), requires_grad=True)
             if layer_scale_init_value > 0
             else None
@@ -32,7 +43,15 @@ class ConvNeXtBlock(nn.Module):
         # self.drop_path = DropPath(
         #     drop_path) if drop_path > 0. else nn.Identity()
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Apply the depthwise convolution, inverted bottleneck and residual connection
+        Args
+            self: ConvNeXt block instance
+            x: Input tensor with shape [N, C, H, W]
+        Returns
+            torch.Tensor: Output tensor with shape [N, C, H, W]
+        """
         x0 = x
         x = self.dw_conv(x)
         x = x.permute(0, 2, 3, 1)  # (N, C, H, W) -> (N, H, W, C)

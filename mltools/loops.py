@@ -1,26 +1,37 @@
+# -*- coding: utf-8 -*-
 """
 Train and Eval loops
+Created on Sun Oct 04 21:15:35 2026
+
+@author: Mateo-drr
 """
 
 from collections import defaultdict
+from typing import Any
 from tqdm import tqdm
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-import utils
+
+from mltools import utils
+from mltools.config import Config
 
 
-def run_model(model: nn.Module, samples: dict, criterion, config) -> dict:
+def run_model(
+    model: nn.Module,
+    samples: dict[str, torch.Tensor],
+    criterion: nn.Module,
+    config: Config,
+) -> dict[str, Any]:
     """
-    Run the model on the given input samples.
-
-    Args:
-        model (nn.Module): Model
-        samples (dict): Input samples.
-        criterion
-        config
-    Returns:
-        dict
+    Run the model on the given input samples
+    Args
+        model: Model to run
+        samples: Batch of samples, the input is expected under the data key
+        criterion: Loss function, the input is used as the target
+        config: Config holding the device
+    Returns
+        dict[str, Any]: Loss, input data and model output
     """
     # Move data to device
     data = samples["data"].to(config.device)
@@ -38,30 +49,30 @@ def run_model(model: nn.Module, samples: dict, criterion, config) -> dict:
 
 def train_loop(
     model: nn.Module,
-    train_dl: DataLoader,
-    criterion,
+    train_dl: DataLoader[dict[str, Any]],
+    criterion: nn.Module,
     optim: torch.optim.Optimizer,
     scaler: torch.amp.GradScaler,
-    wb_metrics: dict,
-    config,
+    wb_metrics: dict[str, dict[str, Any]],
+    config: Config,
     epoch: int,
     scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
-):
+) -> None:
     """
-    Train loop
-    Args:
-        model (nn.Module): Model
-        train_dl (DataLoader): DataLoader
-        criterion
-        optim (torch.optim.Optimizer): Optimizer
-        scaler (torch.amp.GradScaler): GradScaler
-        wb_metrics (dict): metrics dictionary to hold epoch results
-        config (Any): config
-        epoch (int): current epoch
-        scheduler (torch.optim.lr_scheduler.LRScheduler): scheduler
+    Train the model for one epoch
+    Args
+        model: Model to train
+        train_dl: Dataloader over the training split
+        criterion: Loss function
+        optim: Optimizer
+        scaler: GradScaler used for the mixed precision backward pass
+        wb_metrics: Metrics dictionary that holds the epoch results
+        config: Config holding the device, mixed precision and grad clipping options
+        epoch: Current epoch, 0 based
+        scheduler: Scheduler stepped at the end of the epoch
     """
     model.train()
-    results = defaultdict(list)
+    results: defaultdict[str, list[Any]] = defaultdict(list)
 
     for sample in tqdm(train_dl, desc=f"Epoch {epoch + 1}/{config.num_epochs}"):
         optim.zero_grad()
@@ -91,24 +102,24 @@ def train_loop(
 
 def eval_loop(
     model: nn.Module,
-    dataloader: DataLoader,
-    criterion,
+    dataloader: DataLoader[dict[str, Any]],
+    criterion: nn.Module,
     eval_name: str,
-    wb_metrics: dict,
-    config,
-):
+    wb_metrics: dict[str, dict[str, Any]],
+    config: Config,
+) -> None:
     """
-    Validation loop
-    Args:
-        model (nn.Module): Model
-        dataloader (DataLoader): DataLoader
+    Evaluate the model without computing gradients
+    Args
+        model: Model to evaluate
+        dataloader: Dataloader over the split being evaluated
         criterion: Loss function
         eval_name: Evaluation name being run, e.g. valid
-        wb_metrics (dict): metrics dictionary to hold epoch results
-        config (Any): config
+        wb_metrics: Metrics dictionary that holds the epoch results
+        config: Config holding the device and the mixed precision option
     """
     model.eval()
-    results = defaultdict(list)
+    results: defaultdict[str, list[Any]] = defaultdict(list)
     with torch.no_grad():
         for sample in tqdm(dataloader, desc=f"{eval_name}"):
             if config.half_p:
