@@ -1,4 +1,4 @@
-# MLTools
+# torch-omni-tool
 
 A small PyTorch library of reusable network blocks plus a minimal training scaffold
 (config, dataloaders, train/eval loops, logging helpers).
@@ -46,14 +46,14 @@ Note the inconsistent casing in the paths (`RRDB_2D.py` vs `RRDB_3d.py`) and the
 
 | Block | Input | Import |
 | --- | --- | --- |
-| `ConvNeXtBlock` | `[B, C, H, W]` | `mltools.blocks.ConvNeXtV2.ConvNeXtV2` |
-| `GRN` | `[B, C, H, W]` | `mltools.blocks.ConvNeXtV2.GRN` |
-| `MoDE`, `MoDEConv2D` | `[B, C, H, W]` | `mltools.blocks.RepMoDE.RepMoDE_2d` |
-| `MoDEConv`, encoder/decoder blocks | `[B, C, L]` and `[B, C, D, H, W]` | `mltools.blocks.RepMoDE.RepMoDE_1d` / `RepMoDE_3d` |
-| `RRDB`, `RRDB_3D` | `[B, C, H, W]`, `[B, C, D, H, W]` | `mltools.blocks.RRDB.RRDB_2D` / `RRDB_3d` |
-| `SEBlock` | `[B, C, H, W]` | `mltools.blocks.SEB.SEB` |
-| `PositionEmbeddingSine` | `[B, C, H, W]` | `mltools.blocks.ViT.position_embedding_sine` |
-| `Snake` | `[B, C, H, W]` | `mltools.activations.snake` |
+| `ConvNeXtBlock` | `[B, C, H, W]` | `torch_omni_tool.blocks.ConvNeXtV2.ConvNeXtV2` |
+| `GRN` | `[B, C, H, W]` | `torch_omni_tool.blocks.ConvNeXtV2.GRN` |
+| `MoDE`, `MoDEConv2D` | `[B, C, H, W]` | `torch_omni_tool.blocks.RepMoDE.RepMoDE_2d` |
+| `MoDEConv`, encoder/decoder blocks | `[B, C, L]` and `[B, C, D, H, W]` | `torch_omni_tool.blocks.RepMoDE.RepMoDE_1d` / `RepMoDE_3d` |
+| `RRDB`, `RRDB_3D` | `[B, C, H, W]`, `[B, C, D, H, W]` | `torch_omni_tool.blocks.RRDB.RRDB_2D` / `RRDB_3d` |
+| `SEBlock` | `[B, C, H, W]` | `torch_omni_tool.blocks.SEB.SEB` |
+| `PositionEmbeddingSine` | `[B, C, H, W]` | `torch_omni_tool.blocks.ViT.position_embedding_sine` |
+| `Snake` | `[B, C, H, W]` | `torch_omni_tool.activations.snake` |
 
 ```python
 import torch
