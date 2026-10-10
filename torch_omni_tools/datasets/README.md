@@ -13,7 +13,7 @@ CustomDataset(config: Config)
 ```
 
 A `torch.utils.data.Dataset` whose samples are dicts with the tensor under the `"data"` key,
-which is what [`mltools/loops.py`](../loops.py) expects (`samples["data"]` is both the input
+which is what [`..`](../loops.py) expects (`samples["data"]` is both the input
 and the autoencoder target). It currently holds a single random `[8, 16]` tensor, so
 `len(dataset) == 1` and `dataset[0]` returns `{"data": tensor of shape [8, 16]}`.
 
@@ -34,11 +34,11 @@ and only it sets `prefetch_factor` (skipped when `num_workers == 0`, since the o
 invalid there). Any other split raises `NotImplementedError`.
 
 ```python
-from mltools.config import config
-from mltools.datasets.cstm_ds import make_dl
+from torch_omni_tools.config import config
+from torch_omni_tools.datasets.cstm_ds import make_dl
 
 loader = make_dl(config, "train")
-samples = next(iter(loader))       # {"data": tensor}
+samples = next(iter(loader))  # {"data": tensor}
 ```
 
 ## `augmentations_3d.py`

@@ -5,7 +5,7 @@ Normalization layers. Currently a single 2D `LayerNorm` that accepts both channe
 ## `LayerNorm`
 
 `layern_norm_2d.py` (note the typo in the file name — it is the import path used by
-[`mltools/blocks/ConvNeXtV2/ConvNeXtV2.py`](../blocks/ConvNeXtV2/README.md))
+[`..`](../blocks/ConvNeXtV2/README.md))
 
 ```python
 LayerNorm(
@@ -25,10 +25,10 @@ LayerNorm(
 
 ```python
 import torch
-from mltools.normalizations.layern_norm_2d import LayerNorm
+from torch_omni_tools.normalizations.layern_norm_2d import LayerNorm
 
 norm = LayerNorm(64, eps=1e-6, data_format="chan_first")
-y = norm(torch.randn(2, 64, 56, 56))        # [2, 64, 56, 56]
+y = norm(torch.randn(2, 64, 56, 56))  # [2, 64, 56, 56]
 ```
 
 An invalid `data_format` raises `NotImplementedError` both at construction and in

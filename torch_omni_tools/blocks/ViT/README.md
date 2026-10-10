@@ -21,9 +21,9 @@ feature map directly:
 
 ```python
 import torch
-from mltools.blocks.ViT.position_embedding_sine import PositionEmbeddingSine
+from torch_omni_tools.blocks.ViT.position_embedding_sine import PositionEmbeddingSine
 
-pos = PositionEmbeddingSine()(torch.randn(2, 128, 56, 56))     # [2, 128, 56, 56]
+pos = PositionEmbeddingSine()(torch.randn(2, 128, 56, 56))  # [2, 128, 56, 56]
 ```
 
 How it is built:

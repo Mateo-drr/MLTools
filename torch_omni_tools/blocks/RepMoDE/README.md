@@ -68,11 +68,11 @@ arrays of shape `[num_experts, out_chan]`, either for one task or for all of the
 
 ```python
 import torch
-from mltools.blocks.RepMoDE.RepMoDE_2d import MoDE
+from torch_omni_tools.blocks.RepMoDE.RepMoDE_2d import MoDE
 
 block = MoDE(in_chans=3, out_chans=64, num_tasks=2)
 y, task_id = block(torch.randn(2, 3, 64, 64), torch.tensor([0, 1]))
-weights = block.get_task_weights()            # {task_id: [5, 64]}
+weights = block.get_task_weights()  # {task_id: [5, 64]}
 ```
 
 ## Encoder / decoder topology (1d and 3d)
@@ -90,13 +90,13 @@ The 1d and 3d modules ship the autoencoder topology from the paper's code:
 
 ```python
 import torch
-from mltools.blocks.RepMoDE.RepMoDE_3d import (
+from torch_omni_tools.blocks.RepMoDE.RepMoDE_3d import (
     MoDEEncoderBlock,
     MoDESubNet2Conv,
     MoDEDecoderBlock,
 )
 
-t = torch.eye(3)[:2]                                    # one-hot task ids [B, num_tasks]
+t = torch.eye(3)[:2]  # one-hot task ids [B, num_tasks]
 x = torch.randn(2, 4, 16, 16, 16)
 y, skip = MoDEEncoderBlock(num_experts=5, num_tasks=3, in_chan=4, out_chan=8)(x, t)
 b = MoDESubNet2Conv(num_experts=5, num_tasks=3, n_in=8, n_out=16)(y, t)

@@ -5,7 +5,7 @@ Normalization (GRN).
 
 ## `ConvNeXtBlock`
 
-`mltools/blocks/ConvNeXtV2/ConvNeXtV2.py`
+`../..`
 
 ```python
 ConvNeXtBlock(dim: int, layer_scale_init_value: float = 1e-6)
@@ -15,7 +15,7 @@ Input and output are `[B, dim, H, W]`. The block is the modern ConvNeXt meta blo
 
 1. Depthwise 7x7 convolution (`groups=dim`) that permutes to channel-last.
 2. `LayerNorm` over the channel dim, taken from
-   [`mltools/normalizations/layern_norm_2d.py`](../../normalizations/README.md).
+   [`../..`](../../normalizations/README.md).
 3. Inverted bottleneck: `Linear(dim, 4 * dim)` → GELU → `Linear(4 * dim, dim)`.
 4. Optional LayerScale: the branch is multiplied by a learnable per-channel `gamma`
    initialized to `layer_scale_init_value`.
@@ -26,15 +26,15 @@ the smaller ConvNeXt variants.
 
 ```python
 import torch
-from mltools.blocks.ConvNeXtV2.ConvNeXtV2 import ConvNeXtBlock
+from torch_omni_tools.blocks.ConvNeXtV2.ConvNeXtV2 import ConvNeXtBlock
 
 block = ConvNeXtBlock(dim=64)
-y = block(torch.randn(1, 64, 56, 56))          # [1, 64, 56, 56]
+y = block(torch.randn(1, 64, 56, 56))  # [1, 64, 56, 56]
 ```
 
 ## `GRN`
 
-`mltools/blocks/ConvNeXtV2/GRN.py`
+`../..`
 
 ```python
 GRN(dim: int)
@@ -53,10 +53,10 @@ mixing) and works in both train and eval mode; the tested behaviour is documente
 
 ```python
 import torch
-from mltools.blocks.ConvNeXtV2.GRN import GRN
+from torch_omni_tools.blocks.ConvNeXtV2.GRN import GRN
 
 grn = GRN(64)
-y = grn(torch.randn(2, 64, 56, 56))            # [2, 64, 56, 56]
+y = grn(torch.randn(2, 64, 56, 56))  # [2, 64, 56, 56]
 ```
 
 Notes:

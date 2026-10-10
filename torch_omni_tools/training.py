@@ -10,10 +10,10 @@ from typing import Any
 
 import torch
 
-from mltools import loops, utils
-from mltools.config import config
-from mltools.datasets.cstm_ds import make_dl
-from mltools.model import SampleNet
+from torch_omni_tools import loops, utils
+from torch_omni_tools.config import config
+from torch_omni_tools.datasets.cstm_ds import make_dl
+from torch_omni_tools.model import SampleNet
 
 if __name__ == "__main__":
     # PARAMS

@@ -4,7 +4,7 @@ Reusable `nn.Module` blocks. Each block lives in its own folder next to an empty
 `__init__.py`, so imports go through the leaf module:
 
 ```python
-from mltools.blocks.SEB.SEB import SEBlock
+from torch_omni_tools.blocks.SEB.SEB import SEBlock
 ```
 
 ## Available blocks
@@ -29,8 +29,8 @@ from mltools.blocks.SEB.SEB import SEBlock
   `RepMoDE_3d`, so alias them when importing more than one:
 
   ```python
-  from mltools.blocks.RepMoDE.RepMoDE_1d import MoDEConv as MoDEConv1d
-  from mltools.blocks.RepMoDE.RepMoDE_3d import MoDEConv as MoDEConv3d
+  from torch_omni_tools.blocks.RepMoDE.RepMoDE_1d import MoDEConv as MoDEConv1d
+  from torch_omni_tools.blocks.RepMoDE.RepMoDE_3d import MoDEConv as MoDEConv3d
   ```
 
 - **Casing is inconsistent** (`RRDB_2D.py` vs `RRDB_3d.py`), and so is the order of the

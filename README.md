@@ -20,23 +20,23 @@ so installing it is not needed to use the blocks.
 
 | Path | Contents |
 | --- | --- |
-| [`mltools/blocks/`](mltools/blocks/README.md) | Network blocks: ConvNeXt V2, GRN, RepMoDE, RRDB, Squeeze-and-Excite, ViT positional embeddings |
-| [`mltools/activations/`](mltools/activations/README.md) | Activation layers: the periodic `Snake` activation |
-| [`mltools/normalizations/`](mltools/normalizations/README.md) | `LayerNorm` for `[b, c, h, w]` and `[b, h, w, c]` |
-| [`mltools/datasets/`](mltools/datasets/README.md) | `Dataset` / `DataLoader` factory and 3D augmentations |
-| `mltools/config.py` | `Config` dataclass plus a module-level `config` singleton |
-| `mltools/model.py` | `SampleNet`, a placeholder autoencoder-style model |
-| `mltools/loops.py` | `run_model`, `train_loop`, `eval_loop` |
-| `mltools/utils.py` | Timing, metric formatting and epoch bookkeeping helpers |
-| `mltools/training.py` | Entry point that wires the pieces together |
+| [`torch_omni_tools`](torch_omni_tools/blocks/README.md) | Network blocks: ConvNeXt V2, GRN, RepMoDE, RRDB, Squeeze-and-Excite, ViT positional embeddings |
+| [`torch_omni_tools`](torch_omni_tools/activations/README.md) | Activation layers: the periodic `Snake` activation |
+| [`torch_omni_tools`](torch_omni_tools/normalizations/README.md) | `LayerNorm` for `[b, c, h, w]` and `[b, h, w, c]` |
+| [`torch_omni_tools`](torch_omni_tools/datasets/README.md) | `Dataset` / `DataLoader` factory and 3D augmentations |
+| `torch_omni_tools` | `Config` dataclass plus a module-level `config` singleton |
+| `torch_omni_tools` | `SampleNet`, a placeholder autoencoder-style model |
+| `torch_omni_tools` | `run_model`, `train_loop`, `eval_loop` |
+| `torch_omni_tools` | Timing, metric formatting and epoch bookkeeping helpers |
+| `torch_omni_tools` | Entry point that wires the pieces together |
 | [`tests/`](tests/README.md) | Pytest suite (currently the GRN block) |
 
 Each folder has its own README with the details, tensor shapes and references. Every
 `__init__.py` is empty, so blocks are imported from their leaf module:
 
 ```python
-from mltools.blocks.SEB.SEB import SEBlock
-from mltools.blocks.ConvNeXtV2.GRN import GRN
+from torch_omni_tools.blocks.SEB.SEB import SEBlock
+from torch_omni_tools.blocks.ConvNeXtV2.GRN import GRN
 ```
 
 Note the inconsistent casing in the paths (`RRDB_2D.py` vs `RRDB_3d.py`) and the typo in
@@ -57,9 +57,9 @@ Note the inconsistent casing in the paths (`RRDB_2D.py` vs `RRDB_3d.py`) and the
 
 ```python
 import torch
-from mltools.blocks.ConvNeXtV2.GRN import GRN
+from torch_omni_tools.blocks.ConvNeXtV2.GRN import GRN
 
-y = GRN(64)(torch.randn(2, 64, 56, 56))        # [2, 64, 56, 56]
+y = GRN(64)(torch.randn(2, 64, 56, 56))  # [2, 64, 56, 56]
 ```
 
 ## Configuration and training
@@ -69,13 +69,13 @@ parsing, so edit the dataclass defaults or override attributes on the `config` s
 Print the defaults with:
 
 ```bash
-python -m mltools.config
+python -m torch_omni_tools.config
 ```
 
 Run the scaffold:
 
 ```bash
-python -m mltools.training
+python -m torch_omni_tools.training
 ```
 
 The flow is `training.py` → `make_dl` → `SampleNet` → `loops.train_loop` /
@@ -88,8 +88,8 @@ guard, so importing the module has no side effects.
 
 ```bash
 pytest             # tests/ (testpaths set in pyproject.toml)
-mypy               # strict mode over mltools/
-pylint mltools
+mypy               # strict mode over torch_omni_tools/
+pylint torch_omni_tools
 ```
 
 CI (`.github/workflows/ci.yml`) runs Python 3.12 on Ubuntu: install, pylint, mypy and

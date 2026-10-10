@@ -7,7 +7,7 @@ Created on Sun Oct 04 21:15:35 2026
 
 import torch
 from torch import nn
-from mltools.normalizations.layern_norm_2d import LayerNorm
+from torch_omni_tools.normalizations.layern_norm_2d import LayerNorm
 
 
 class ConvNeXtBlock(nn.Module):

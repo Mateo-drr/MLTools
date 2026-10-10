@@ -20,9 +20,9 @@ regressing periodic signals and for implicit-neural-representation style models.
 
 ```python
 import torch
-from mltools.activations.snake import Snake
+from torch_omni_tools.activations.snake import Snake
 
-y = Snake(64)(torch.randn(2, 64, 56, 56))     # [2, 64, 56, 56]
+y = Snake(64)(torch.randn(2, 64, 56, 56))  # [2, 64, 56, 56]
 ```
 
 Caveats:

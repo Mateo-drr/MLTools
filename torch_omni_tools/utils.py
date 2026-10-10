@@ -15,7 +15,7 @@ from datetime import datetime
 from pprint import pprint
 import copy
 
-from mltools.config import Config
+from torch_omni_tools.config import Config
 
 
 def print_list(items: list[Any]) -> None:
