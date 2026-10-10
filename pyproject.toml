@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 # 2. Project Metadata (PEP 621) — Package details and dependencies
 [project]
-name = "mltools"
+name = "torch-omni-tool"
 version = "0.1.0"
 description = "Collection of pytorch tools and blocks"
 readme = "README.md"
@@ -19,6 +19,7 @@ authors = [
 dependencies = [
     "torch",
     "torchvision",
+    "wandb",
     "tqdm",
     "numpy",
     "pillow"
@@ -27,9 +28,6 @@ dependencies = [
 # Optional / extra dependencies (e.g. installed via `pip install .[dev]`)
 [project.optional-dependencies]
 # Only needed when Config.wb is enabled, imported lazily
-wandb = [
-    "wandb"
-]
 dev = [
     "pytest",
     "pylint",
