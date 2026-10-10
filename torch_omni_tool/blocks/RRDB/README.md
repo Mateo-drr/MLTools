@@ -40,8 +40,8 @@ Three residual dense blocks in sequence, each with its own residual connection a
 
 ```python
 import torch
-from torch_omni_tools.blocks.RRDB.RRDB_2D import RRDB
-from torch_omni_tools.blocks.RRDB.RRDB_3d import RRDB_3D
+from torch_omni_tool.blocks.RRDB.RRDB_2D import RRDB
+from torch_omni_tool.blocks.RRDB.RRDB_3d import RRDB_3D
 
 y2d = RRDB(nf=64, gc=32)(torch.randn(1, 64, 32, 32))  # [1, 64, 32, 32]
 y3d = RRDB_3D(nf=32, gc=16)(torch.randn(1, 32, 8, 8, 8))  # [1, 32, 8, 8, 8]

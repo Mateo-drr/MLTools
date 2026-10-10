@@ -11,7 +11,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 import torch
 
-from torch_omni_tools.config import Config
+from torch_omni_tool.config import Config
 
 
 class CustomDataset(Dataset[dict[str, Any]]):

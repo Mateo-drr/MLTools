@@ -20,7 +20,7 @@ Input and output are `[B, C, H, W]` with `C == channels`. Three steps:
 
 ```python
 import torch
-from torch_omni_tools.blocks.SEB.SEB import SEBlock
+from torch_omni_tool.blocks.SEB.SEB import SEBlock
 
 y = SEBlock(channels=64, reduce_dim=16)(torch.randn(2, 64, 56, 56))  # [2, 64, 56, 56]
 ```

@@ -4,7 +4,7 @@ import pytest
 import torch
 from torch.testing import assert_close
 
-from torch_omni_tools.blocks.ConvNeXtV2.GRN import GRN
+from torch_omni_tool.blocks.ConvNeXtV2.GRN import GRN
 
 BATCH, CHANNELS, HEIGHT, WIDTH = 2, 8, 5, 7
 EPS = 1e-6

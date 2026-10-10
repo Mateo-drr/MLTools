@@ -12,7 +12,7 @@ pytest tests/test_grn.py -k identity
 
 ## `test_grn.py`
 
-22 tests for [`../torch_omni_tools`](../torch_omni_tools/blocks/ConvNeXtV2/README.md).
+22 tests for [`../torch_omni_tool`](../torch_omni_tool/blocks/ConvNeXtV2/README.md).
 Inputs are generated with a fixed-seed `torch.Generator` so runs are reproducible, and the
 block is cross-checked against a straightforward re-implementation of the GRN formula
 (`_reference_grn`) rather than against hardcoded numbers.

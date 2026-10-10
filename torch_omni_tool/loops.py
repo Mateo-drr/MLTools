@@ -13,8 +13,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 
-from torch_omni_tools import utils
-from torch_omni_tools.config import Config
+from torch_omni_tool import utils
+from torch_omni_tool.config import Config
 
 
 def run_model(

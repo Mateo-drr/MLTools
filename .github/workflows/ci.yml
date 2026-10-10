@@ -30,7 +30,7 @@ jobs:
       # known-failing: 7.6/10, remove continue-on-error once clean
       - name: Pylint
         continue-on-error: true
-        run: pylint torch_omni_tools
+        run: pylint torch_omni_tool
 
       - name: Mypy
         run: mypy

@@ -26,7 +26,7 @@ the smaller ConvNeXt variants.
 
 ```python
 import torch
-from torch_omni_tools.blocks.ConvNeXtV2.ConvNeXtV2 import ConvNeXtBlock
+from torch_omni_tool.blocks.ConvNeXtV2.ConvNeXtV2 import ConvNeXtBlock
 
 block = ConvNeXtBlock(dim=64)
 y = block(torch.randn(1, 64, 56, 56))  # [1, 64, 56, 56]
@@ -53,7 +53,7 @@ mixing) and works in both train and eval mode; the tested behaviour is documente
 
 ```python
 import torch
-from torch_omni_tools.blocks.ConvNeXtV2.GRN import GRN
+from torch_omni_tool.blocks.ConvNeXtV2.GRN import GRN
 
 grn = GRN(64)
 y = grn(torch.randn(2, 64, 56, 56))  # [2, 64, 56, 56]

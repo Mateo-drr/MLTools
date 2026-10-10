@@ -25,7 +25,7 @@ LayerNorm(
 
 ```python
 import torch
-from torch_omni_tools.normalizations.layern_norm_2d import LayerNorm
+from torch_omni_tool.normalizations.layern_norm_2d import LayerNorm
 
 norm = LayerNorm(64, eps=1e-6, data_format="chan_first")
 y = norm(torch.randn(2, 64, 56, 56))  # [2, 64, 56, 56]

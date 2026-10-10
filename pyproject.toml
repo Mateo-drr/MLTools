@@ -38,8 +38,8 @@ dev = [
 
 # Project links shown on PyPI
 [project.urls]
-Homepage = "https://github.com/Mateo-drr/MLTools"
-Repository = "https://github.com/Mateo-drr/MLTools.git"
+Homepage = "https://github.com/Mateo-drr/torch-omni-tool"
+Repository = "https://github.com/Mateo-drr/torch-omni-tool.git"
 
 # 3. Tool Configurations — Specific tool settings consolidated in one place
 
@@ -55,7 +55,7 @@ addopts = "-v"
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["mltools"]
+files = ["torch_omni_tool"]
 
 [[tool.mypy.overrides]]
 module = ["torch.*"]

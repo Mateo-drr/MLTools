@@ -68,7 +68,7 @@ arrays of shape `[num_experts, out_chan]`, either for one task or for all of the
 
 ```python
 import torch
-from torch_omni_tools.blocks.RepMoDE.RepMoDE_2d import MoDE
+from torch_omni_tool.blocks.RepMoDE.RepMoDE_2d import MoDE
 
 block = MoDE(in_chans=3, out_chans=64, num_tasks=2)
 y, task_id = block(torch.randn(2, 3, 64, 64), torch.tensor([0, 1]))
@@ -90,7 +90,7 @@ The 1d and 3d modules ship the autoencoder topology from the paper's code:
 
 ```python
 import torch
-from torch_omni_tools.blocks.RepMoDE.RepMoDE_3d import (
+from torch_omni_tool.blocks.RepMoDE.RepMoDE_3d import (
     MoDEEncoderBlock,
     MoDESubNet2Conv,
     MoDEDecoderBlock,
