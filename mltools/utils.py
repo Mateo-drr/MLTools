@@ -10,7 +10,6 @@ from typing import Any
 from collections import defaultdict
 import numpy as np
 import torch
-import wandb
 import time
 from datetime import datetime
 from pprint import pprint
@@ -147,6 +146,8 @@ def finish_epoch(
     )
 
     if config.wb:
+        import wandb
+
         # TODO format your metrics if necessary
         formatted: dict[str, Any] = wb_metrics.copy()
         formatted["learning_rate"] = current_lr

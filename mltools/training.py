@@ -9,7 +9,6 @@ import time
 from typing import Any
 
 import torch
-import wandb
 
 from mltools import loops, utils
 from mltools.config import config
@@ -40,6 +39,8 @@ if __name__ == "__main__":
 
     # init weights & biases
     if config.wb:
+        import wandb
+
         wandb.init(project=config.project_name, config=config.__dict__.copy())
 
     utils.count_params(model)
@@ -84,4 +85,6 @@ if __name__ == "__main__":
         )
 
     if config.wb:
+        import wandb
+
         wandb.finish()

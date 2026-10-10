@@ -21,11 +21,15 @@ dependencies = [
     "torchvision",
     "tqdm",
     "numpy",
-    "wandb"
+    "pillow"
 ]
 
 # Optional / extra dependencies (e.g. installed via `pip install .[dev]`)
 [project.optional-dependencies]
+# Only needed when Config.wb is enabled, imported lazily
+wandb = [
+    "wandb"
+]
 dev = [
     "pytest",
     "pylint",

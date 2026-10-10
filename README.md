@@ -10,11 +10,11 @@ blocks can be copied into any project or imported from here.
 
 ```bash
 pip install -e ".[dev]"      # runtime + pytest / pylint / mypy / black / types-tqdm
+pip install -e ".[wandb]"    # adds the optional Weights & Biases logging dependency
 ```
 
-Requires Python >= 3.12. `Pillow` is imported by the 3D augmentations but is not declared as
-a dependency — install it explicitly if you use them (it currently only arrives
-transitively through `torchvision`).
+Requires Python >= 3.12. `wandb` is optional and only imported when `Config.wb` is enabled,
+so installing it is not needed to use the blocks.
 
 ## What is inside
 
